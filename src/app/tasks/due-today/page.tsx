@@ -30,8 +30,8 @@ export default function DueTodayTasksPage() {
     setShowTaskForm(true);
   };
 
-  const handleViewTask = (taskId: number) => {
-    setSelectedTaskId(taskId);
+  const handleViewTask = (task: Task) => {
+    setSelectedTaskId(task.id);
   };
 
   const handleCloseForm = () => {
@@ -132,11 +132,7 @@ export default function DueTodayTasksPage() {
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={task.id}>
               <TaskCard
                 task={task}
-                onEdit={(task: Task) => handleEditTask(task.id)}
-                onDelete={handleDeleteTask}
-                onStart={handleStartTask}
-                onComplete={handleCompleteTask}
-                onView={(task: Task) => handleViewTask(task.id)}
+                onView={handleViewTask}
               />
             </Grid>
           ))}

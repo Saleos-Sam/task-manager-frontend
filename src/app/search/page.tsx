@@ -22,6 +22,7 @@ import TaskCard from '@/components/tasks/TaskCard';
 import TaskDetails from '@/components/tasks/TaskDetails';
 import TaskForm from '@/components/tasks/TaskForm';
 import { useSearchTasks, useCompleteTask, useStartTask, useDeleteTask } from '@/hooks/use-tasks';
+import { Task } from '@/types/task';
 
 function SearchContent() {
   const router = useRouter();
@@ -77,23 +78,8 @@ function SearchContent() {
     }
   };
 
-  const handleDeleteTask = async (taskId: number) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      try {
-        await deleteTaskMutation.mutateAsync(taskId);
-      } catch (error) {
-        console.error('Failed to delete task:', error);
-      }
-    }
-  };
-
-  const handleEditTask = (taskId: number) => {
-    setEditingTaskId(taskId);
-    setShowTaskForm(true);
-  };
-
-  const handleViewTask = (taskId: number) => {
-    setSelectedTaskId(taskId);
+  const handleViewTask = (task: Task) => {
+    setSelectedTaskId(task.id);
   };
 
   const handleCloseForm = () => {
@@ -235,11 +221,7 @@ function SearchContent() {
                 <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={task.id}>
                   <TaskCard
                     task={task}
-                    onEdit={() => handleEditTask(task.id)}
-                    onDelete={handleDeleteTask}
-                    onStart={handleStartTask}
-                    onComplete={handleCompleteTask}
-                    onView={() => handleViewTask(task.id)}
+                    onView={handleViewTask}
                   />
                 </Grid>
               ))}
