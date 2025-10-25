@@ -27,21 +27,21 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: task-manager-frontend-master/package-lock.json
+        cache-dependency-path: task-manager-frontend/package-lock.json
 
     - name: Install dependencies
       run: |
-        cd task-manager-frontend-master
+        cd task-manager-frontend
         npm ci
 
     - name: Run tests
       run: |
-        cd task-manager-frontend-master
+        cd task-manager-frontend
         npm test -- --coverage --watchAll=false
 
     - name: Build application
       run: |
-        cd task-manager-frontend-master
+        cd task-manager-frontend
         npm run build
 
     - name: Set up Docker Buildx
@@ -68,8 +68,8 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: ./task-manager-frontend-master
-        file: ./task-manager-frontend-master/Dockerfile
+        context: ./task-manager-frontend
+        file: ./task-manager-frontend/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
