@@ -11,7 +11,7 @@ import {
   TaskPriority,
 } from '@/types/task';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/tasks`;
+const BASE_URL = `${process.env.API_URL}/api/v1/tasks`;
 
 // Create axios instance with default config
 const apiClient = axios.create({
