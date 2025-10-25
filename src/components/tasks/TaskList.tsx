@@ -221,7 +221,7 @@ export default function TaskList({
            {/* Search Section */}
            <Box sx={{ mb: 1.5 }}>
              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5, color: 'text.primary', fontSize: '0.875rem' }}>
-               Search & Filter
+               Search & Filter test
              </Typography>
              <Grid container spacing={1.5} alignItems="center">
                <Grid size={{ xs: 12, md: 8 }}>
