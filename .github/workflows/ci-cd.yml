@@ -64,7 +64,5 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        build-args: |
-          NEXT_PUBLIC_API_URL=http://task-manager-gateway:8080
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
