@@ -210,7 +210,7 @@ export default function TaskList({
        {showFilters && (
          <Paper 
            sx={{ 
-             p: 3, 
+             p: 1.5, 
              mb: 3, 
              borderRadius: 2,
              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -219,14 +219,15 @@ export default function TaskList({
            }}
          >
            {/* Search Section */}
-           <Box sx={{ mb: 3 }}>
-             <Typography variant="h6" fontWeight={600} sx={{ mb: 2, color: 'text.primary' }}>
+           <Box sx={{ mb: 1.5 }}>
+             <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5, color: 'text.primary', fontSize: '0.875rem' }}>
                Search & Filter
              </Typography>
-             <Grid container spacing={2} alignItems="center">
-               <Grid size={{ xs: 12, md: 6 }}>
+             <Grid container spacing={1.5} alignItems="center">
+               <Grid size={{ xs: 12, md: 8 }}>
                  <TextField
                    fullWidth
+                   size="small"
                    label="Search tasks..."
                    placeholder="Search by title, description, category, assignee..."
                    value={searchTerm}
@@ -234,7 +235,7 @@ export default function TaskList({
                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                    InputProps={{
                      startAdornment: (
-                       <Search sx={{ color: 'text.secondary', mr: 1 }} />
+                       <Search sx={{ color: 'text.secondary', mr: 1, fontSize: '1.25rem' }} />
                      ),
                      endAdornment: searchTerm && (
                        <IconButton 
@@ -243,31 +244,38 @@ export default function TaskList({
                          size="small"
                          sx={{ color: 'primary.main' }}
                        >
-                         <Search />
+                         <Search fontSize="small" />
                        </IconButton>
                      ),
                    }}
                    sx={{
                      '& .MuiOutlinedInput-root': {
-                       borderRadius: 2,
+                       borderRadius: 1.5,
+                       fontSize: '0.875rem',
                        '&:hover .MuiOutlinedInput-notchedOutline': {
                          borderColor: 'primary.main',
                        },
+                     },
+                     '& .MuiInputLabel-root': {
+                       fontSize: '0.875rem',
                      },
                    }}
                  />
                </Grid>
 
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 4 }}>
                  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                    <Button
                      variant="outlined"
-                     startIcon={<Clear />}
+                     size="small"
+                     startIcon={<Clear fontSize="small" />}
                      onClick={handleClearFilters}
                      sx={{ 
-                       borderRadius: 2,
+                       borderRadius: 1.5,
                        textTransform: 'none',
-                       fontWeight: 500
+                       fontWeight: 500,
+                       fontSize: '0.813rem',
+                       px: 2,
                      }}
                    >
                      Clear All
@@ -278,33 +286,34 @@ export default function TaskList({
            </Box>
 
            {/* Filter Controls */}
-           <Box sx={{ mb: 3 }}>
-             <Typography variant="subtitle1" fontWeight={500} sx={{ mb: 2, color: 'text.secondary' }}>
+           <Box sx={{ mb: 1.5 }}>
+             <Typography variant="caption" fontWeight={500} sx={{ mb: 1.5, color: 'text.secondary', display: 'block', fontSize: '0.75rem' }}>
                Filter Options
              </Typography>
-             <Grid container spacing={2}>
+             <Grid container spacing={1.5}>
                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                 <FormControl fullWidth>
-                   <InputLabel>Status</InputLabel>
+                 <FormControl fullWidth size="small">
+                   <InputLabel sx={{ fontSize: '0.875rem' }}>Status</InputLabel>
                    <Select
                      value={filters.status || ''}
                      label="Status"
                      onChange={(e) => handleFilterChange({ status: e.target.value as TaskStatus || undefined })}
                      sx={{
-                       borderRadius: 2,
+                       borderRadius: 1.5,
+                       fontSize: '0.875rem',
                        '& .MuiOutlinedInput-notchedOutline': {
                          borderColor: 'divider',
                        },
                      }}
                    >
-                     <MenuItem value="">All Statuses</MenuItem>
+                     <MenuItem value="" sx={{ fontSize: '0.875rem' }}>All Statuses</MenuItem>
                      {(['TODO', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED'] as TaskStatus[]).map(status => (
-                       <MenuItem key={status} value={status}>
+                       <MenuItem key={status} value={status} sx={{ fontSize: '0.875rem' }}>
                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                            <Box
                              sx={{
-                               width: 8,
-                               height: 8,
+                               width: 6,
+                               height: 6,
                                borderRadius: '50%',
                                bgcolor: status === 'TODO' ? 'warning.main' :
                                         status === 'IN_PROGRESS' ? 'info.main' :
@@ -321,27 +330,28 @@ export default function TaskList({
                </Grid>
 
                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                 <FormControl fullWidth>
-                   <InputLabel>Priority</InputLabel>
+                 <FormControl fullWidth size="small">
+                   <InputLabel sx={{ fontSize: '0.875rem' }}>Priority</InputLabel>
                    <Select
                      value={filters.priority || ''}
                      label="Priority"
                      onChange={(e) => handleFilterChange({ priority: e.target.value as TaskPriority || undefined })}
                      sx={{
-                       borderRadius: 2,
+                       borderRadius: 1.5,
+                       fontSize: '0.875rem',
                        '& .MuiOutlinedInput-notchedOutline': {
                          borderColor: 'divider',
                        },
                      }}
                    >
-                     <MenuItem value="">All Priorities</MenuItem>
+                     <MenuItem value="" sx={{ fontSize: '0.875rem' }}>All Priorities</MenuItem>
                      {(['LOW', 'MEDIUM', 'HIGH', 'URGENT'] as TaskPriority[]).map(priority => (
-                       <MenuItem key={priority} value={priority}>
+                       <MenuItem key={priority} value={priority} sx={{ fontSize: '0.875rem' }}>
                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                            <Box
                              sx={{
-                               width: 8,
-                               height: 8,
+                               width: 6,
+                               height: 6,
                                borderRadius: '50%',
                                bgcolor: priority === 'LOW' ? 'success.main' :
                                         priority === 'MEDIUM' ? 'warning.main' :
@@ -359,16 +369,21 @@ export default function TaskList({
                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                  <TextField
                    fullWidth
+                   size="small"
                    label="Category"
                    placeholder="Enter category..."
                    value={filters.category || ''}
                    onChange={(e) => handleFilterChange({ category: e.target.value || undefined })}
                    sx={{
                      '& .MuiOutlinedInput-root': {
-                       borderRadius: 2,
+                       borderRadius: 1.5,
+                       fontSize: '0.875rem',
                        '&:hover .MuiOutlinedInput-notchedOutline': {
                          borderColor: 'primary.main',
                        },
+                     },
+                     '& .MuiInputLabel-root': {
+                       fontSize: '0.875rem',
                      },
                    }}
                  />
@@ -377,16 +392,21 @@ export default function TaskList({
                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                  <TextField
                    fullWidth
+                   size="small"
                    label="Assigned To"
                    placeholder="Enter email..."
                    value={filters.assignedTo || ''}
                    onChange={(e) => handleFilterChange({ assignedTo: e.target.value || undefined })}
                    sx={{
                      '& .MuiOutlinedInput-root': {
-                       borderRadius: 2,
+                       borderRadius: 1.5,
+                       fontSize: '0.875rem',
                        '&:hover .MuiOutlinedInput-notchedOutline': {
                          borderColor: 'primary.main',
                        },
+                     },
+                     '& .MuiInputLabel-root': {
+                       fontSize: '0.875rem',
                      },
                    }}
                  />
@@ -396,54 +416,56 @@ export default function TaskList({
 
            {/* Sort Controls */}
            <Box sx={{ 
-             pt: 2, 
+             pt: 1.5, 
              borderTop: '1px solid', 
              borderColor: 'divider',
              display: 'flex', 
-             gap: 2, 
+             gap: 1.5, 
              alignItems: 'center',
              flexWrap: 'wrap'
            }}>
-             <Typography variant="subtitle2" fontWeight={500} color="text.secondary">
+             <Typography variant="caption" fontWeight={500} color="text.secondary" sx={{ fontSize: '0.75rem' }}>
                Sort by:
              </Typography>
-             <FormControl size="small" sx={{ minWidth: 140 }}>
-               <InputLabel>Field</InputLabel>
+             <FormControl size="small" sx={{ minWidth: 130 }}>
+               <InputLabel sx={{ fontSize: '0.875rem' }}>Field</InputLabel>
                <Select
                  value={filters.sortBy || 'createdAt'}
                  label="Field"
                  onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
                  sx={{
-                   borderRadius: 2,
+                   borderRadius: 1.5,
+                   fontSize: '0.875rem',
                    '& .MuiOutlinedInput-notchedOutline': {
                      borderColor: 'divider',
                    },
                  }}
                >
-                 <MenuItem value="createdAt">Created Date</MenuItem>
-                 <MenuItem value="updatedAt">Updated Date</MenuItem>
-                 <MenuItem value="title">Title</MenuItem>
-                 <MenuItem value="dueDate">Due Date</MenuItem>
-                 <MenuItem value="priority">Priority</MenuItem>
-                 <MenuItem value="status">Status</MenuItem>
+                 <MenuItem value="createdAt" sx={{ fontSize: '0.875rem' }}>Created Date</MenuItem>
+                 <MenuItem value="updatedAt" sx={{ fontSize: '0.875rem' }}>Updated Date</MenuItem>
+                 <MenuItem value="title" sx={{ fontSize: '0.875rem' }}>Title</MenuItem>
+                 <MenuItem value="dueDate" sx={{ fontSize: '0.875rem' }}>Due Date</MenuItem>
+                 <MenuItem value="priority" sx={{ fontSize: '0.875rem' }}>Priority</MenuItem>
+                 <MenuItem value="status" sx={{ fontSize: '0.875rem' }}>Status</MenuItem>
                </Select>
              </FormControl>
 
-             <FormControl size="small" sx={{ minWidth: 120 }}>
-               <InputLabel>Order</InputLabel>
+             <FormControl size="small" sx={{ minWidth: 110 }}>
+               <InputLabel sx={{ fontSize: '0.875rem' }}>Order</InputLabel>
                <Select
                  value={filters.sortDir || 'desc'}
                  label="Order"
                  onChange={(e) => handleFilterChange({ sortDir: e.target.value as 'asc' | 'desc' })}
                  sx={{
-                   borderRadius: 2,
+                   borderRadius: 1.5,
+                   fontSize: '0.875rem',
                    '& .MuiOutlinedInput-notchedOutline': {
                      borderColor: 'divider',
                    },
                  }}
                >
-                 <MenuItem value="asc">Ascending</MenuItem>
-                 <MenuItem value="desc">Descending</MenuItem>
+                 <MenuItem value="asc" sx={{ fontSize: '0.875rem' }}>Ascending</MenuItem>
+                 <MenuItem value="desc" sx={{ fontSize: '0.875rem' }}>Descending</MenuItem>
                </Select>
              </FormControl>
            </Box>
