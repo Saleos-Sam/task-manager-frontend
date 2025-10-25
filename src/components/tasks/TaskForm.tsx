@@ -32,6 +32,27 @@ import { Task, CreateTaskRequest, UpdateTaskRequest, TaskStatus, TaskPriority } 
 import { useCreateTask, useUpdateTask, useTask } from '@/hooks/use-tasks';
 import { getStatusLabel, getPriorityLabel } from '@/lib/utils';
 
+// Task Categories
+const TASK_CATEGORIES = [
+  'Development',
+  'Testing',
+  'Bug Fix',
+  'Documentation',
+  'DevOps',
+  'Security',
+  'Database',
+  'Frontend',
+  'Mobile',
+  'Design',
+  'Research',
+  'Maintenance',
+  'Training',
+  'Process',
+  'Analysis',
+  'Setup',
+  'Accessibility'
+] as const;
+
 const schema = yup.object().shape({
   title: yup.string().required('Title is required').max(255, 'Title must be less than 255 characters'),
   description: yup.string().max(1000, 'Description must be less than 1000 characters'),
@@ -133,7 +154,6 @@ export default function TaskForm({
         estimatedHours: taskData.estimatedHours,
         createdBy: taskData.createdBy,
       });
-      console.log("Edit mode - form reset with task data:", taskData);
     }
   }, [open, isEdit, existingTask, isLoadingTask]); // Removed initialData from dependencies
 
@@ -146,8 +166,6 @@ export default function TaskForm({
 
   const onSubmit = async (data: TaskFormData) => {
     try {
-      console.log("Form data:", data);
-      
       // Format the due date properly
       let formattedDueDate: string | undefined;
       if (data.dueDate) {
@@ -171,8 +189,6 @@ export default function TaskForm({
         estimatedHours: data.estimatedHours || undefined,
         createdBy: data.createdBy,
       };
-
-      console.log("API payload:", taskData);
 
       if (isEdit && taskId) {
         await updateTaskMutation.mutateAsync({
@@ -339,14 +355,25 @@ export default function TaskForm({
                     name="category"
                     control={control}
                     render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        label="Category"
-                        error={!!errors.category}
-                        helperText={errors.category?.message}
-                        disabled={isSubmitting}
-                      />
+                      <FormControl fullWidth error={!!errors.category}>
+                        <InputLabel>Category</InputLabel>
+                        <Select
+                          {...field}
+                          label="Category"
+                          disabled={isSubmitting}
+                        >
+                          {TASK_CATEGORIES.map(category => (
+                            <MenuItem key={category} value={category}>
+                              {category}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {errors.category && (
+                          <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                            {errors.category.message}
+                          </Typography>
+                        )}
+                      </FormControl>
                     )}
                   />
                 </Grid>

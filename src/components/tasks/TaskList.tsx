@@ -484,10 +484,6 @@ export default function TaskList({
                 <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={task.id}>
                   <TaskCard
                     task={task}
-                    onEdit={(task) => onEditTask?.(task.id)}
-                    onDelete={handleDeleteTask}
-                    onStart={handleStartTask}
-                    onComplete={handleCompleteTask}
                     onView={(task) => onViewTask?.(task.id)}
                   />
                 </Grid>

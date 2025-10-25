@@ -8,6 +8,7 @@ import TaskList from '@/components/tasks/TaskList';
 import TaskForm from '@/components/tasks/TaskForm';
 import TaskDetails from '@/components/tasks/TaskDetails';
 import { TaskFilters } from '@/types/task';
+import { useStartTask, useCompleteTask } from '@/hooks/use-tasks';
 
 function TasksContent() {
   const router = useRouter();
@@ -15,6 +16,10 @@ function TasksContent() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+
+  // Mutations
+  const startTaskMutation = useStartTask();
+  const completeTaskMutation = useCompleteTask();
 
   // Parse search params to initial filters
   const initialFilters: TaskFilters = {
@@ -58,6 +63,22 @@ function TasksContent() {
     setSelectedTaskId(null);
   };
 
+  const handleStartFromDetails = async (taskId: number) => {
+    try {
+      await startTaskMutation.mutateAsync(taskId);
+    } catch (error) {
+      console.error('Failed to start task:', error);
+    }
+  };
+
+  const handleCompleteFromDetails = async (taskId: number) => {
+    try {
+      await completeTaskMutation.mutateAsync(taskId);
+    } catch (error) {
+      console.error('Failed to complete task:', error);
+    }
+  };
+
   return (
     <Layout>
       <TaskList
@@ -84,6 +105,8 @@ function TasksContent() {
         taskId={selectedTaskId}
         onEdit={handleEditFromDetails}
         onDelete={handleDeleteFromDetails}
+        onStart={handleStartFromDetails}
+        onComplete={handleCompleteFromDetails}
       />
     </Layout>
   );

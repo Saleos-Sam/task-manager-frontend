@@ -78,35 +78,3 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Configure kubectl
-      uses: azure/k8s-set-context@v3
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-    - name: Deploy to Kubernetes
-      run: |
-        # Update image tag in deployment
-        sed -i "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|g" Task-Manager-Deploy/dev/k8s/task_manager_frontend_deployment.yml
-        
-        # Apply deployment
-        kubectl apply -f Task-Manager-Deploy/dev/k8s/task_manager_frontend_deployment.yml
-        
-        # Wait for rollout
-        kubectl rollout status deployment/task-manager-frontend -n ${{ env.KUBERNETES_NAMESPACE }}
-
-    - name: Verify deployment
-      run: |
-        kubectl get pods -l app=task-manager-frontend -n ${{ env.KUBERNETES_NAMESPACE }}
-        kubectl get services -n ${{ env.KUBERNETES_NAMESPACE }}
-
-

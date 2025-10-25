@@ -11,12 +11,8 @@ import {
   Box,
   Chip,
   Divider,
-  Grid,
-  Avatar,
-  LinearProgress,
   IconButton,
   Tooltip,
-  Paper,
   Alert,
   CircularProgress,
 } from '@mui/material';
@@ -28,11 +24,8 @@ import {
   CheckCircle,
   Person,
   Schedule,
-  Category,
-  CalendarToday,
   Update,
   Timer,
-  Flag,
 } from '@mui/icons-material';
 import { Task } from '@/types/task';
 import { useTask } from '@/hooks/use-tasks';
@@ -42,13 +35,10 @@ import {
   getStatusLabel,
   getPriorityLabel,
   formatDate,
-  formatDateTime,
   formatRelativeTime,
   isOverdue,
   isDueToday,
   isDueSoon,
-  getTaskProgressPercentage,
-  calculateEstimatedCompletion,
 } from '@/lib/utils';
 
 interface TaskDetailsProps {
@@ -140,7 +130,6 @@ export default function TaskDetails({
     estimatedHours: (task as any).estimated_hours || task.estimatedHours,
   };
 
-  const progress = getTaskProgressPercentage(taskData.status);
   const overdueStatus = isOverdue(taskData.dueDate, taskData.status);
   const dueTodayStatus = isDueToday(taskData.dueDate);
   const dueSoonStatus = isDueSoon(taskData.dueDate);
@@ -161,310 +150,235 @@ export default function TaskDetails({
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: { 
-          borderRadius: 3,
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+        sx: {
+          borderRadius: 2,
           overflow: 'hidden'
         }
       }}
     >
-      <DialogTitle sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        pb: 2,
-        px: 3,
-        pt: 3,
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-        bgcolor: 'background.paper'
+      <DialogTitle sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        p: 3,
+        pb: 2
       }}>
-        <Typography variant="h5" component="div" fontWeight={700} color="primary">
-          Task Details
-        </Typography>
-        <IconButton 
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h5" component="div" fontWeight={600} gutterBottom>
+            {taskData.title}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, mt: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Chip
+              label={getStatusLabel(taskData.status)}
+              color={getStatusColor(taskData.status)}
+              size="small"
+              sx={{ fontWeight: 500 }}
+            />
+            <Chip
+              label={getPriorityLabel(taskData.priority)}
+              color={getPriorityColor(taskData.priority)}
+              size="small"
+              variant="outlined"
+            />
+            {taskData.category && (
+              <Chip
+                label={taskData.category}
+                size="small"
+                variant="outlined"
+              />
+            )}
+
+            {/* Action Icons */}
+            <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+              <Tooltip title={taskData.status !== 'TODO' ? 'Task already started' : 'Start Task'}>
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={handleStart}
+                    disabled={taskData.status !== 'TODO'}
+                    color="primary"
+                    sx={{
+                      border: '1px solid',
+                      borderColor: taskData.status === 'TODO' ? 'primary.main' : 'action.disabled',
+                      '&:hover': {
+                        bgcolor: 'primary.lighter'
+                      }
+                    }}
+                  >
+                    <PlayArrow fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+
+              <Tooltip title={taskData.status === 'IN_PROGRESS' ? 'Mark as Complete' : 'Start task first'}>
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={handleComplete}
+                    disabled={taskData.status !== 'IN_PROGRESS'}
+                    color="success"
+                    sx={{
+                      border: '1px solid',
+                      borderColor: taskData.status === 'IN_PROGRESS' ? 'success.main' : 'action.disabled',
+                      '&:hover': {
+                        bgcolor: 'success.lighter'
+                      }
+                    }}
+                  >
+                    <CheckCircle fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Box>
+          </Box>
+        </Box>
+        <IconButton
           onClick={onClose}
-          sx={{ 
-            color: 'text.secondary',
-            '&:hover': { 
-              bgcolor: 'action.hover',
-              color: 'text.primary'
-            }
-          }}
+          size="small"
+          sx={{ color: 'text.secondary' }}
         >
           <Close />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ pb: 1, px: 3, pt: 3 }}>
+      <DialogContent sx={{ p: 3, pt: 2 }}>
         <Box>
-          {/* Status and Priority Alert */}
+          {/* Alert */}
           {(overdueStatus || dueTodayStatus) && (
-            <Alert 
-              severity={overdueStatus ? 'error' : 'warning'} 
-              sx={{ mb: 3 }}
-              icon={<Schedule />}
+            <Alert
+              severity={overdueStatus ? 'error' : 'warning'}
+              sx={{ mb: 2 }}
             >
-              This task is {overdueStatus ? 'overdue' : 'due today'}!
+              {overdueStatus ? 'This task is overdue!' : 'This task is due today!'}
             </Alert>
           )}
 
-          {/* Title and Description */}
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h4" component="h1" fontWeight={700} gutterBottom>
-              {taskData.title}
+          {/* Description */}
+          {taskData.description && (
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.7 }}>
+              {taskData.description}
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-              {taskData.description || 'No description provided.'}
-            </Typography>
-          </Box>
-
-          {/* Status, Priority, and Category Chips */}
-          <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
-            <Chip
-              label={getStatusLabel(taskData.status)}
-              color={getStatusColor(taskData.status)}
-              icon={<Flag />}
-              variant="filled"
-              sx={{ fontWeight: 600 }}
-            />
-            <Chip
-              label={getPriorityLabel(taskData.priority)}
-              color={getPriorityColor(taskData.priority)}
-              variant="outlined"
-              sx={{ fontWeight: 500 }}
-            />
-            {taskData.category && (
-              <Chip
-                icon={<Category />}
-                label={taskData.category}
-                variant="outlined"
-                sx={{ fontWeight: 500 }}
-              />
-            )}
-          </Box>
-
-          {/* Progress */}
-          {progress > 0 && (
-            <Paper sx={{ 
-              p: 3, 
-              mb: 3, 
-              bgcolor: 'background.default',
-              borderRadius: 2,
-              border: '1px solid',
-              borderColor: 'divider'
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="subtitle1" fontWeight={600} color="text.primary">
-                  Progress
-                </Typography>
-                <Typography variant="h5" sx={{ ml: 'auto', fontWeight: 700, color: 'primary.main' }}>
-                  {progress}%
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                sx={{ 
-                  height: 10, 
-                  borderRadius: 5,
-                  bgcolor: 'action.hover',
-                  '& .MuiLinearProgress-bar': {
-                    borderRadius: 5,
-                  }
-                }}
-              />
-              {taskData.estimatedHours && progress > 0 && progress < 100 && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-                  Estimated time remaining: {calculateEstimatedCompletion(taskData.estimatedHours, progress)}
-                </Typography>
-              )}
-            </Paper>
           )}
 
-          {/* Details Grid */}
-          <Grid container spacing={4}>
+
+          {/* Details in Two Columns */}
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr',
+            gap: 4,
+            '@media (max-width: 600px)': {
+              gridTemplateColumns: '1fr'
+            }
+          }}>
             {/* Left Column */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {/* Due Date */}
-                {taskData.dueDate && (
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 2,
-                    p: 2,
-                    borderRadius: 1,
-                    bgcolor: 'background.default',
-                    border: '1px solid',
-                    borderColor: 'divider'
-                  }}>
-                    <Schedule color={dueDateInfo.color as any} />
-                    <Box>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                        Due Date
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              {/* Due Date */}
+              {taskData.dueDate && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <Schedule sx={{ 
+                    color: dueDateInfo.color !== 'default' ? `${dueDateInfo.color}.main` : 'action.active',
+                    fontSize: 20,
+                    mt: 0.2
+                  }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                      Due Date
+                    </Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {formatDate(taskData.dueDate)}
+                    </Typography>
+                    {dueDateInfo.label && (
+                      <Typography variant="caption" color={`${dueDateInfo.color}.main`}>
+                        {dueDateInfo.label}
                       </Typography>
-                      <Typography variant="body1" fontWeight={600} color={`${dueDateInfo.color}.main`}>
-                        {formatDate(taskData.dueDate)}
-                        {dueDateInfo.label && ` (${dueDateInfo.label})`}
-                      </Typography>
-                    </Box>
+                    )}
                   </Box>
-                )}
+                </Box>
+              )}
 
-                {/* Assigned To */}
-                {taskData.assignedTo && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Person color="action" />
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Assigned To
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
-                          {taskData.assignedTo.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <Typography variant="body1" fontWeight={600}>
-                          {taskData.assignedTo}
-                        </Typography>
-                      </Box>
-                    </Box>
+              {/* Assigned To */}
+              {taskData.assignedTo && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <Person sx={{ color: 'action.active', fontSize: 20, mt: 0.2 }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                      Assigned To
+                    </Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {taskData.assignedTo}
+                    </Typography>
                   </Box>
-                )}
+                </Box>
+              )}
 
-                {/* Estimated Hours */}
-                {taskData.estimatedHours && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Timer color="action" />
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Estimated Hours
-                      </Typography>
-                      <Typography variant="body1" fontWeight={600}>
-                        {taskData.estimatedHours}h
-                      </Typography>
-                    </Box>
+              {/* Estimated Hours */}
+              {taskData.estimatedHours && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <Timer sx={{ color: 'action.active', fontSize: 20, mt: 0.2 }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                      Estimated Hours
+                    </Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {taskData.estimatedHours}h
+                    </Typography>
                   </Box>
-                )}
-              </Box>
-            </Grid>
+                </Box>
+              )}
+            </Box>
 
             {/* Right Column */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {/* Created */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <CalendarToday color="action" />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Created
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {formatDateTime(taskData.createdAt)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatRelativeTime(taskData.createdAt)}
-                    </Typography>
-                  </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              {/* Created By */}
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <Person sx={{ color: 'action.active', fontSize: 20, mt: 0.2 }} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                    Created By
+                  </Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {taskData.createdBy || 'Unknown'}
+                  </Typography>
                 </Box>
-
-                {/* Last Updated */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Update color="action" />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Last Updated
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {formatDateTime(taskData.updatedAt)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatRelativeTime(taskData.updatedAt)}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Created By */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Person color="action" />
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Created By
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
-                        {taskData.createdBy?.charAt(0).toUpperCase() || 'U'}
-                      </Avatar>
-                      <Typography variant="body1" fontWeight={600}>
-                        {taskData.createdBy || 'Unknown'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-
-                {/* Completion Date */}
-                {taskData.completionDate && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <CheckCircle color="success" />
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Completed
-                      </Typography>
-                      <Typography variant="body1" fontWeight={600}>
-                        {formatDateTime(taskData.completionDate)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formatRelativeTime(taskData.completionDate)}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
               </Box>
-            </Grid>
-          </Grid>
+
+              {/* Last Updated */}
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <Update sx={{ color: 'action.active', fontSize: 20, mt: 0.2 }} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                    Last Updated
+                  </Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {formatRelativeTime(taskData.updatedAt)}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Completion Date */}
+              {taskData.completionDate && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <CheckCircle sx={{ color: 'success.main', fontSize: 20, mt: 0.2 }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                      Completed
+                    </Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {formatRelativeTime(taskData.completionDate)}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Box>
       </DialogContent>
 
-      <Divider />
-
-      <DialogActions sx={{ 
-        p: 3, 
-        gap: 2,
-        borderTop: '1px solid',
-        borderColor: 'divider',
-        bgcolor: 'background.paper'
-      }}>
-        <Box sx={{ flex: 1 }}>
-          {taskData.status === 'TODO' && (
-            <Tooltip title="Start working on this task">
-              <Button
-                variant="outlined"
-                startIcon={<PlayArrow />}
-                onClick={handleStart}
-                color="primary"
-              >
-                Start Task
-              </Button>
-            </Tooltip>
-          )}
-
-          {(taskData.status === 'TODO' || taskData.status === 'IN_PROGRESS') && (
-            <Tooltip title="Mark this task as completed">
-              <Button
-                variant="contained"
-                startIcon={<CheckCircle />}
-                onClick={handleComplete}
-                color="success"
-                sx={{ ml: 1 }}
-              >
-                Mark Complete
-              </Button>
-            </Tooltip>
-          )}
-        </Box>
+      <DialogActions sx={{ p: 2, px: 3, gap: 1, justifyContent: 'flex-end' }}>
 
         <Button
           variant="outlined"
+          size="small"
           startIcon={<Edit />}
           onClick={handleEdit}
         >
@@ -473,15 +387,12 @@ export default function TaskDetails({
 
         <Button
           variant="outlined"
+          size="small"
           startIcon={<Delete />}
           onClick={handleDelete}
           color="error"
         >
           Delete
-        </Button>
-
-        <Button onClick={onClose} color="inherit">
-          Close
         </Button>
       </DialogActions>
     </Dialog>

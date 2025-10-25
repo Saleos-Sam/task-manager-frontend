@@ -16,7 +16,6 @@ import {
   Avatar,
   Box,
   Typography,
-  LinearProgress,
   Tooltip,
 } from '@mui/material';
 import {
@@ -37,7 +36,6 @@ import {
   formatRelativeTime,
   isOverdue,
   isDueToday,
-  getTaskProgressPercentage,
   truncateText,
 } from '@/lib/utils';
 
@@ -111,14 +109,12 @@ export default function TaskTableView({
             <TableCell>Category</TableCell>
             <TableCell>Assigned To</TableCell>
             <TableCell>Due Date</TableCell>
-            <TableCell>Progress</TableCell>
             <TableCell>Created</TableCell>
             <TableCell align="right">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {tasks.map((task) => {
-            const progress = getTaskProgressPercentage(task.status);
             const overdueStatus = isOverdue(task.dueDate, task.status);
             const dueTodayStatus = isDueToday(task.dueDate);
 
@@ -239,19 +235,6 @@ export default function TaskTableView({
                       No due date
                     </Typography>
                   )}
-                </TableCell>
-
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 100 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={progress}
-                      sx={{ flex: 1, height: 6, borderRadius: 3 }}
-                    />
-                    <Typography variant="caption" sx={{ minWidth: 30, textAlign: 'right' }}>
-                      {progress}%
-                    </Typography>
-                  </Box>
                 </TableCell>
 
                 <TableCell>

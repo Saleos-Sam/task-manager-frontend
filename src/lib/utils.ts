@@ -100,37 +100,6 @@ export const isDueSoon = (dueDate: string | null, days: number = 3): boolean => 
   return dayjs(dueDate).isBefore(dayjs().add(days, 'day')) && dayjs(dueDate).isAfter(dayjs());
 };
 
-export const getTaskProgressPercentage = (status: TaskStatus): number => {
-  switch (status) {
-    case 'TODO':
-      return 0;
-    case 'IN_PROGRESS':
-      return 50;
-    case 'ON_HOLD':
-      return 25;
-    case 'COMPLETED':
-      return 100;
-    case 'CANCELLED':
-      return 0;
-    default:
-      return 0;
-  }
-};
-
-export const calculateEstimatedCompletion = (estimatedHours: number | null, progress: number): string => {
-  if (!estimatedHours || progress === 0) return 'Unknown';
-  
-  const remainingHours = estimatedHours * (1 - progress / 100);
-  
-  if (remainingHours < 1) {
-    return `${Math.round(remainingHours * 60)} minutes`;
-  } else if (remainingHours < 24) {
-    return `${Math.round(remainingHours)} hours`;
-  } else {
-    return `${Math.round(remainingHours / 24)} days`;
-  }
-};
-
 export const truncateText = (text: string, maxLength: number = 50): string => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
