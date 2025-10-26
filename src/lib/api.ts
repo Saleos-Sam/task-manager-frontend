@@ -58,12 +58,12 @@ export const taskApi = {
     const params = { page, size, sortBy, sortDir };
     
     const response: AxiosResponse<any> = await apiClient.get('', { params });
-    
+  
     // Map snake_case response to camelCase
     return {
       content: response.data.content,
-      totalElements: response.data.total_elements,
-      totalPages: response.data.total_pages,
+      totalElements: response.data.totalElements,
+      totalPages: response.data.totalPages,
       number: response.data.number,
       size: response.data.size,
       first: response.data.first,
@@ -118,12 +118,12 @@ export const taskApi = {
       '/filter', 
       { params: filters }
     );
-    
+  
     // Map snake_case response to camelCase
     return {
       content: response.data.content,
-      totalElements: response.data.total_elements,
-      totalPages: response.data.total_pages,
+      totalElements: response.data.totalElements,
+      totalPages: response.data.totalPages,
       number: response.data.number,
       size: response.data.size,
       first: response.data.first,
@@ -166,8 +166,8 @@ export const taskApi = {
     // Map snake_case response to camelCase
     return {
       content: response.data.content,
-      totalElements: response.data.total_elements,
-      totalPages: response.data.total_pages,
+      totalElements: response.data.totalElements,
+      totalPages: response.data.totalPages,
       number: response.data.number,
       size: response.data.size,
       first: response.data.first,
@@ -184,8 +184,8 @@ export const taskApi = {
     // Map snake_case response to camelCase
     return {
       content: response.data.content,
-      totalElements: response.data.total_elements,
-      totalPages: response.data.total_pages,
+      totalElements: response.data.totalElements,
+      totalPages: response.data.totalPages,
       number: response.data.number,
       size: response.data.size,
       first: response.data.first,
