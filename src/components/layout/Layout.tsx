@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Box, Toolbar } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -24,7 +24,9 @@ export default function Layout({ children }: LayoutProps) {
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Header onMenuClick={handleSidebarToggle} />
       
-      <Sidebar open={sidebarOpen} onClose={handleSidebarClose} />
+      <Suspense fallback={null}>
+        <Sidebar open={sidebarOpen} onClose={handleSidebarClose} />
+      </Suspense>
       
       <Box
         component="main"
