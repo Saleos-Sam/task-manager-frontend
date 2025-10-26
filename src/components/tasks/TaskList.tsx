@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   Box,
   Grid,
@@ -34,6 +35,7 @@ import { TaskFilters, TaskStatus, TaskPriority } from '@/types/task';
 import { useTasks, useFilteredTasks, useCompleteTask, useStartTask, useDeleteTask } from '@/hooks/use-tasks';
 import TaskCard from './TaskCard';
 import TaskTableView from './TaskTableView';
+import { TASK_CATEGORIES } from './TaskForm';
 import { getStatusLabel, getPriorityLabel } from '@/lib/utils';
 
 interface TaskListProps {
@@ -53,6 +55,9 @@ export default function TaskList({
   onEditTask,
   onViewTask,
 }: TaskListProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  
   const [filters, setFilters] = useState<TaskFilters>({
     page: 0,
     size: 12,
@@ -64,6 +69,63 @@ export default function TaskList({
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Update filters when initialFilters (URL params) change
+  useEffect(() => {
+    setFilters(prev => ({
+      page: 0,
+      size: 12,
+      sortBy: 'createdAt',
+      sortDir: 'desc',
+      ...initialFilters,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    initialFilters?.status, 
+    initialFilters?.priority, 
+    initialFilters?.category, 
+    initialFilters?.assignedTo, 
+    initialFilters?.searchTerm,
+    initialFilters?.createdAfter,
+    initialFilters?.createdBefore,
+    initialFilters?.dueAfter,
+    initialFilters?.dueBefore,
+  ]);
+
+  // Sync filters to URL when they change internally (excluding pagination/sorting)
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    // Add filter params to URL (only the ones that are set)
+    if (filters.status) params.set('status', filters.status);
+    if (filters.priority) params.set('priority', filters.priority);
+    if (filters.category) params.set('category', filters.category);
+    if (filters.assignedTo) params.set('assignedTo', filters.assignedTo);
+    if (filters.searchTerm) params.set('search', filters.searchTerm);
+    if (filters.createdAfter) params.set('createdAfter', filters.createdAfter);
+    if (filters.createdBefore) params.set('createdBefore', filters.createdBefore);
+    if (filters.dueAfter) params.set('dueAfter', filters.dueAfter);
+    if (filters.dueBefore) params.set('dueBefore', filters.dueBefore);
+    
+    // Build the new URL
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    
+    // Update URL without triggering a full page reload
+    router.push(newUrl, { scroll: false });
+  }, [
+    filters.status,
+    filters.priority,
+    filters.category,
+    filters.assignedTo,
+    filters.searchTerm,
+    filters.createdAfter,
+    filters.createdBefore,
+    filters.dueAfter,
+    filters.dueBefore,
+    pathname,
+    router,
+  ]);
 
   // Determine if we have any filters applied (excluding pagination and sorting)
   const hasFilters = filters.status || filters.priority || filters.category || 
@@ -104,6 +166,8 @@ export default function TaskList({
       sortDir: 'desc',
     });
     setSearchTerm('');
+    // Clear URL parameters
+    router.push(pathname, { scroll: false });
   };
 
   const handleCompleteTask = async (taskId: number) => {
@@ -153,11 +217,6 @@ export default function TaskList({
           <Typography variant="h4" component="h1" fontWeight={700}>
             {title}
           </Typography>
-          {tasksResponse && (
-            <Typography variant="body2" color="text.secondary">
-              {tasksResponse.totalElements} task{tasksResponse.totalElements !== 1 ? 's' : ''} found
-            </Typography>
-          )}
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -366,28 +425,32 @@ export default function TaskList({
                  </FormControl>
                </Grid>
 
-               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                 <TextField
-                   fullWidth
-                   size="small"
-                   label="Category"
-                   placeholder="Enter category..."
-                   value={filters.category || ''}
-                   onChange={(e) => handleFilterChange({ category: e.target.value || undefined })}
-                   sx={{
-                     '& .MuiOutlinedInput-root': {
-                       borderRadius: 1.5,
-                       fontSize: '0.875rem',
-                       '&:hover .MuiOutlinedInput-notchedOutline': {
-                         borderColor: 'primary.main',
-                       },
-                     },
-                     '& .MuiInputLabel-root': {
-                       fontSize: '0.875rem',
-                     },
-                   }}
-                 />
-               </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <FormControl fullWidth size="small">
+                  <InputLabel sx={{ fontSize: '0.875rem' }}>Category</InputLabel>
+                  <Select
+                    value={filters.category || ''}
+                    onChange={(e) => handleFilterChange({ category: e.target.value || undefined })}
+                    label="Category"
+                    sx={{
+                      borderRadius: 1.5,
+                      fontSize: '0.875rem',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'primary.main',
+                      },
+                    }}
+                  >
+                    <MenuItem value="">
+                      <em>All Categories</em>
+                    </MenuItem>
+                    {TASK_CATEGORIES.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
 
                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                  <TextField

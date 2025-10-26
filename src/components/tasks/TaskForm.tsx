@@ -33,10 +33,11 @@ import { useCreateTask, useUpdateTask, useTask } from '@/hooks/use-tasks';
 import { getStatusLabel, getPriorityLabel } from '@/lib/utils';
 
 // Task Categories
-const TASK_CATEGORIES = [
+export const TASK_CATEGORIES = [
   'Development',
   'Testing',
   'Bug Fix',
+  'Integration',
   'Documentation',
   'DevOps',
   'Security',

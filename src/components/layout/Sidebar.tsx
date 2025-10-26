@@ -22,10 +22,8 @@ import {
   AssignmentTurnedIn,
   Schedule,
   PriorityHigh,
-  Search,
-  Settings,
 } from '@mui/icons-material';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTaskStatistics } from '@/hooks/use-tasks';
 
 const DRAWER_WIDTH = 280;
@@ -38,6 +36,7 @@ interface SidebarProps {
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: statistics } = useTaskStatistics();
 
   const navigationItems = [
@@ -106,29 +105,19 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     },
   ];
 
-  const otherItems = [
-    {
-      text: 'Search',
-      icon: <Search />,
-      path: '/search',
-      badge: null,
-    },
-    {
-      text: 'Settings',
-      icon: <Settings />,
-      path: '/settings',
-      badge: null,
-    },
-  ];
-
   const handleNavigation = (path: string) => {
     router.push(path);
     onClose();
   };
 
   const renderListItem = (item: any) => {
-    const isActive = pathname === item.path || 
-      (item.path.includes('?') && pathname === item.path.split('?')[0]);
+    // Build current URL with query params
+    const currentUrl = searchParams.toString() 
+      ? `${pathname}?${searchParams.toString()}`
+      : pathname;
+    
+    // Check if the item path matches the current URL
+    const isActive = currentUrl === item.path;
 
     return (
       <ListItem key={item.text} disablePadding>
@@ -190,6 +179,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           {navigationItems.map(renderListItem)}
         </List>
 
+        <Divider />
+
         <Box sx={{ px: 2, py: 1 }}>
           <Typography variant="overline" color="text.secondary" fontWeight={600}>
             Quick Filters
@@ -200,11 +191,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           {quickFilters.map(renderListItem)}
         </List>
 
-        <Divider sx={{ mx: 2, my: 1 }} />
-
-        <List sx={{ py: 0 }}>
-          {otherItems.map(renderListItem)}
-        </List>
       </Box>
     </Box>
   );
@@ -215,7 +201,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       open={open}
       onClose={onClose}
       ModalProps={{
-        keepMounted: true, // Better mobile performance
+        keepMounted: true,
       }}
       sx={{
         '& .MuiDrawer-paper': {
